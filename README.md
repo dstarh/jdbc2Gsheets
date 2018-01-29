@@ -1,2 +1,2 @@
-# mysql-to-gsheets
 # jdbc2Gsheets
+Usage: ```TBD```

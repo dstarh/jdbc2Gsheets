@@ -39,13 +39,12 @@ public class Jdbc2GsheetsApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        System.out.println(args.getOptionNames());
         if (!args.containsOption("sql")) {
             logger.error("Sql file not found");
             System.exit(1);
         }
         if (!args.containsOption("title")) {
-            logger.error("Sql file not found");
+            logger.error("Title not found");
             System.exit(1);
         }
         String title = args.getOptionValues("title")
@@ -68,6 +67,8 @@ public class Jdbc2GsheetsApplication implements ApplicationRunner {
                                            .spreadsheets()
                                            .create(sb.build())
                                            .execute();
-        logger.error(created.getSpreadsheetUrl());
+        System.out.println("*******************************************");
+        System.out.println(created.getSpreadsheetUrl());
+        System.out.println("*******************************************");
     }
 }

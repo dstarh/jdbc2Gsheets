@@ -1,6 +1,7 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
-
+src/main/resources/client_secret.json
+.java-version
 sql/
 ### STS ###
 .apt_generated

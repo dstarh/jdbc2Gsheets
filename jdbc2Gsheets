@@ -1,0 +1,2 @@
+#!/bin/sh
+java -jar target/jdbc2Gsheets-0.0.1-SNAPSHOT.jar --sql="$1" --title="$2"

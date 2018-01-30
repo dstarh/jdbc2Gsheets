@@ -55,9 +55,9 @@ public class RowDataResultSetExtractor implements ResultSetExtractor<List<RowDat
                 }
                 break;
             case "java.sql.Timestamp":
-                String tsVal = rs.getString(index);
+                java.sql.Timestamp tsVal = rs.getTimestamp(index);
                 if (null != tsVal) {
-                    DateTime joda = DateTime.parse(tsVal);
+                    DateTime joda = new DateTime(tsVal);
                     ev.setStringValue(joda.toString(ISODateTimeFormat.dateTime()));
                 }
             case "java.lang.String":

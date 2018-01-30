@@ -9,35 +9,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.api.services.sheets.v4.model.CellData;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
+import com.google.api.services.sheets.v4.model.CellData;
 import com.google.api.services.sheets.v4.model.ExtendedValue;
 import com.google.api.services.sheets.v4.model.RowData;
 
-public class RowDataRowMapper implements RowMapper<RowData> {
+public class RowDataResultSetExtractor implements ResultSetExtractor<List<RowData>> {
     private Map<Integer, String> typeMapCache = new HashMap<>();
-
-    @Override
-    public RowData mapRow(ResultSet resultSet, int i) throws SQLException {
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int columns = metaData.getColumnCount();
-        RowData rowData = new RowData();
-        List<CellData> cellData = new ArrayList<>();
-        for (int j = 1; j <= columns; j++) {
-            if (!typeMapCache.containsKey(j)) {
-                typeMapCache.put(j, metaData.getColumnClassName(i));
-            }
-            String type = typeMapCache.get(j);
-            CellData cellDatum = new CellData();
-            cellDatum.setUserEnteredValue(getExtendedValue(resultSet, j, type));
-            cellData.add(cellDatum);
-        }
-        rowData.setValues(cellData);
-        return rowData;
-    }
 
     ExtendedValue getExtendedValue(ResultSet rs, int index, String type) throws SQLException {
         ExtendedValue ev = new ExtendedValue();
@@ -86,5 +68,40 @@ public class RowDataRowMapper implements RowMapper<RowData> {
                 break;
         }
         return ev;
+    }
+
+    @Override
+    public List<RowData> extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+        List<RowData> rowData = new ArrayList<>();
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columns = metaData.getColumnCount();
+        RowData headerDatum = new RowData();
+        List<CellData> headerData = new ArrayList<>();
+        for (int i = 1; i <= columns; i++) {
+            CellData cellDatum = new CellData();
+            ExtendedValue ev = new ExtendedValue();
+            ev.setStringValue(metaData.getColumnName(i));
+            cellDatum.setUserEnteredValue(ev);
+            headerData.add(cellDatum);
+        }
+        headerDatum.setValues(headerData);
+        rowData.add(headerDatum);
+
+        while (resultSet.next()) {
+            RowData rowDatum = new RowData();
+            List<CellData> cellData = new ArrayList<>();
+            for (int i = 1; i <= columns; i++) {
+                if (!typeMapCache.containsKey(i)) {
+                    typeMapCache.put(i, metaData.getColumnClassName(i));
+                }
+                String type = typeMapCache.get(i);
+                CellData cellDatum = new CellData();
+                cellDatum.setUserEnteredValue(getExtendedValue(resultSet, i, type));
+                cellData.add(cellDatum);
+            }
+            rowDatum.setValues(cellData);
+            rowData.add(rowDatum);
+        }
+        return rowData;
     }
 }

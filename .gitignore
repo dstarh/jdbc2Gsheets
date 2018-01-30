@@ -1,6 +1,7 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
 
+sql/
 ### STS ###
 .apt_generated
 .classpath

@@ -25,7 +25,7 @@ import com.purpleasphalt.jdbc2Gsheets.google.SheetsFactory;
 
 @Component
 public class SheetsFactoryImpl implements SheetsFactory {
-    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/sheets.googleapis.com-java-quickstart");
+    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/sheets.googleapis.com-jdbc2Gsheets");
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final List<String> SCOPES = Arrays.asList(SheetsScopes.SPREADSHEETS_READONLY, SheetsScopes.SPREADSHEETS);
     private static FileDataStoreFactory DATA_STORE_FACTORY;

@@ -39,36 +39,40 @@ public class Jdbc2GsheetsApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if (!args.containsOption("sql")) {
-            logger.error("Sql file not found");
-            System.exit(1);
-        }
-        if (!args.containsOption("title")) {
-            logger.error("Title not found");
-            System.exit(1);
-        }
-        String title = args.getOptionValues("title")
-                           .get(0);
-        String sqlFileName = args.getOptionValues("sql")
-                                 .get(0);
-        InputStream is = new FileSystemResource(sqlFileName).getInputStream();
-        String sql = IOUtils.toString(is);
-        Spreadsheets.Builder sb = Spreadsheets.Builder.init()
-                                                      .withTitle(title);
-        connections.getDataSources()
-                   .forEach((name, dataSource) -> {
-                       sb.withSheet(Sheets.Builder.init()
-                                                  .withRowData(sqlToRowData.getRowData(sql, dataSource))
-                                                  .withTitle(name)
-                                                  .build());
-                   });
+        if (args.containsOption("auth")) {
+            sheetsFactory.authorize();
+        } else {
+            if (!args.containsOption("sql")) {
+                logger.error("Sql file not found");
+                System.exit(1);
+            }
+            if (!args.containsOption("title")) {
+                logger.error("Title not found");
+                System.exit(1);
+            }
+            String title = args.getOptionValues("title")
+                               .get(0);
+            String sqlFileName = args.getOptionValues("sql")
+                                     .get(0);
+            InputStream is = new FileSystemResource(sqlFileName).getInputStream();
+            String sql = IOUtils.toString(is);
+            Spreadsheets.Builder sb = Spreadsheets.Builder.init()
+                                                          .withTitle(title);
+            connections.getDataSources()
+                       .forEach((name, dataSource) -> {
+                           sb.withSheet(Sheets.Builder.init()
+                                                      .withRowData(sqlToRowData.getRowData(sql, dataSource))
+                                                      .withTitle(name)
+                                                      .build());
+                       });
 
-        Spreadsheet created = sheetsFactory.getSheetsService()
-                                           .spreadsheets()
-                                           .create(sb.build())
-                                           .execute();
-        System.out.println("*******************************************");
-        System.out.println(created.getSpreadsheetUrl());
-        System.out.println("*******************************************");
+            Spreadsheet created = sheetsFactory.getSheetsService()
+                                               .spreadsheets()
+                                               .create(sb.build())
+                                               .execute();
+            System.out.println("*******************************************");
+            System.out.println(created.getSpreadsheetUrl());
+            System.out.println("*******************************************");
+        }
     }
 }
